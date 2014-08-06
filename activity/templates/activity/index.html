@@ -361,41 +361,23 @@
 
 
 
-
-  <div class="row">
+  {% for activities_day in activities_last_5_days %}<div class="row">
  
     <div class="large-2 columns">
       <div class="panel">
-        <h5>13</h5>
+        <h5>xx</h5>
       </div>
     </div>
-    <div class="large-2 columns">
+
+
+    {% for activity in activities_day %}<div class="large-2 columns">
       <div class="panel">
         <h5>{{ activity }}</h5>
       </div>
-    </div>
-    <div class="large-2 columns">
-      <div class="panel">
-        <h5></h5>
-      </div>
-    </div>
-    <div class="large-2 columns">
-      <div class="panel">
-        <h5></h5>
-      </div>
-    </div>
-    <div class="large-2 columns">
-      <div class="panel">
-        <h5></h5>
-      </div>
-    </div>
-    <div class="large-2 columns">
-      <div class="panel">
-        <h5></h5>
-      </div>
-    </div>
- 
-  </div>
+    </div>{% endfor %}
+
+
+  </div>{% endfor %}
 
 
  
