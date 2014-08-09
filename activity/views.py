@@ -12,29 +12,30 @@ from django.core import serializers
 
 import json
 
-def viewgrid(request, days, page):
+def viewgrid(request, year, month, day, day_numbers):
 
-	days=int(days)
-	page=int(page)
-	day_end = date.today()# - timedelta(days = (page-1)*days)
+	day_numbers=int(day_numbers)
+	date_start = date(int(year),int(month),int(day))
 
-	days_in_page = [day_end]
-
-	i=1
-	while i<=5:
-		days_in_page.append(day_end - timedelta(days=i))
-		i+=1
-	days_in_page.reverse()
 
 	#return HttpResponse(days_in_page)
 
 	activities = []
 	activity = None
+	
+	i=0
+	while i<day_numbers:
 
-	for d in days_in_page:
-		
+		d = date_start + timedelta(days=i)
+		i+=1
+			
 		for h in range(1,25):
 
+			#
+			# query. datehour & activity
+			# packaging. blanks & sleep
+			#
+			
 			datehours = Datehour.objects.filter(date=d,hour=h)
 			if len(datehours)==1:
 				datehour = datehours[0]
@@ -53,8 +54,13 @@ def viewgrid(request, days, page):
 			
 			activities.append(activity)
 
+
 	#data = serializers.serialize("json", activities)
 	
+	#
+	# json conversion 
+	#
+
 	data = []
 	for a in activities:
 		data.append({
