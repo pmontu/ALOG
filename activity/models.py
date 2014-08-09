@@ -18,6 +18,8 @@ class Activity(models.Model):
 	TRAVEL = 'TR'
 	DOCTOR = 'DC'
 	SLEEP = 'SL'
+	HYGIENE = 'HY'
+	BLANK = 'BL'
 	ACTIVITY_CHOICES = (
 		(FOOD, 'Food'),
 		(WORK, 'Work'),
@@ -27,6 +29,8 @@ class Activity(models.Model):
 		(DOCTOR,'Doctor'),
 		(TRAVEL,'Travel'),
 		(SLEEP,'Sleep'),
+		(HYGIENE,'Hygiene'),
+		(BLANK,'----'),
 		)
 	activity = models.CharField(max_length=2,
 	choices=ACTIVITY_CHOICES,
