@@ -14,48 +14,27 @@ import json
 
 def viewgrid(request, year, month, day, day_numbers):
 
+	year = int(year)
+	month = int(month)
+	day = int(day)
 	day_numbers=int(day_numbers)
-	date_start = date(int(year),int(month),int(day))
+
+	date_start = date(year,month,day)
+	date_end = date_start + timedelta(days=day_numbers-1)
 
 
-	#return HttpResponse(days_in_page)
+	#
+	# query raw join 
+	#
 
 	activities = []
-	activity = None
-	
-	i=0
-	while i<day_numbers:
-
-		d = date_start + timedelta(days=i)
-		i+=1
-			
-		for h in range(1,25):
-
-			#
-			# query. datehour & activity
-			# packaging. blanks & sleep
-			#
-			
-			datehours = Datehour.objects.filter(date=d,hour=h)
-			if len(datehours)==1:
-				datehour = datehours[0]
-				activitys = Activity.objects.filter(datehour=datehour)
-				if len(activitys)>0:
-
-					activity = activitys[0]
-
-				else:
-					dh = Datehour(date=d,hour=h)
-
-					activity = Activity(datehour=dh, activity = Activity.SLEEP, details="")
-			else:
-				dh = Datehour(date=d,hour=h)
-				activity = Activity(datehour=dh,activity=Activity.BLANK,details="")
-			
-			activities.append(activity)
-
-
-	#data = serializers.serialize("json", activities)
+	activities = Activity.objects.raw('''
+		select A.id
+		from activity_activity as A, activity_datehour as D 
+		where 
+			D.id = A.datehour_id and 
+			D.date between '%s' and '%s'
+		''' % (str(date_start), str(date_end)) )
 	
 	#
 	# json conversion 
