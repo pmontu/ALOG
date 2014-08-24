@@ -1,0 +1,61 @@
+<div>
+       <div class="row">
+              <div class="col-sm-5">
+                     <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                   <label class="col-sm-6 control-label">Start Date</label>
+                                   <div class="col-sm-6">
+                                   	<input type="date"
+                                                 ng-model="dateStart"
+                                                 min="{{ datemin | date:'yyyy-MM-dd' }}"
+                                                 max="{{ datemax | date:'yyyy-MM-dd' }}"
+                                                 ng-change="change()"
+                                                 class="form-control"
+                                          >
+                                   </div>
+                            </div>
+                     </form>
+              </div>
+
+              <div class="col-sm-7">
+                     
+              </div>
+       </div>
+
+       <div ng-if="dateStart">
+
+              <div class="panel panel-default">
+                     <div class="panel-heading">
+                            <h3 class="panel-title">Activities</h3>
+                     </div>
+                     <div class="panel-body">
+
+                            <ul class="pager">
+                                   <div ng-if="isPreviousAllowed"><li class="previous"><a href="#" >&larr; Older</a></li></div>
+                                   <div ng-if="isNextAllowed"><li class="next"><a href="#" >Newer &rarr;</a></li></div>
+                            </ul>
+
+                            <table class="table table-striped table-condensed">
+                            		<tr>
+                                                 <td>h/d</td>
+                            			<th ng-repeat="d in dates">
+                            				{{ d | date }}
+                            			</th>
+                            		</tr>
+                            		<tr ng-repeat="h in hours">
+                                                 <th>
+                                                        {{ h }}
+                                                 </th>
+                            			<td ng-repeat="d in dates">
+                            				<div ng-repeat="a in activities[$parent.$index][$index].cells">{{ a.activity }}</div>
+                                                        <a ng-if="activities[$parent.$index][$index].isEmpty" class="btn btn-sm" ng-click="addActivity(d,h)" href="#/activity">
+                                                               <span class="glyphicon glyphicon-plus-sign"></span>
+                                                        </a>
+                            			</td>
+                            		</tr>
+                            </table>
+                     </div>
+              </div>
+       </div>
+
+</div>
