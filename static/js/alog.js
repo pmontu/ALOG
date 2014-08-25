@@ -5,11 +5,11 @@ var app = angular.module("alogApp",['ngRoute']);
 app.config(function($routeProvider){
 	$routeProvider.when('/',{
 		controller:"viewGridController",
-		templateUrl:"views/viewactivities.html"
+		templateUrl:"views/view.html"
 	})
 	.when('/activity',{
 		controller:'editActivitiesController',
-		templateUrl:'views/activitiesedit.html'
+		templateUrl:'views/add.html'
 	});
 });
 
@@ -28,7 +28,7 @@ app.filter('datehour', function($filter){
 	};
 });
 
-app.controller("viewGridController", function($scope, viewGridFactory, activityFactory, $filter) {
+app.controller("viewGridController", function($scope, activityFactory, $filter) {
 
 	//	HOURS TO FILTER
 	$scope.hours= [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
@@ -37,7 +37,7 @@ app.controller("viewGridController", function($scope, viewGridFactory, activityF
 
 	//	MIN MAX DATES FOR DATE PICKER
 	function setDateRange(){
-		viewGridFactory.getDateRange().success(function(data){
+		activityFactory.getDateRange().success(function(data){
 			$scope.datemin = data.min;
 			$scope.datemax = data.max;
 		});
@@ -47,11 +47,15 @@ app.controller("viewGridController", function($scope, viewGridFactory, activityF
 	setDateRange();
 
 	//	SELECT DATE TO LOAD ACTIVITIES
+	//	STARTING ROUTINE
+	//	IS CALLED AFTER DATESTART IS SET
 	$scope.change = function(){
 
 		init();
 	};
 
+	//	NEEDS DATESTART
+	//
 	//	LOADS ACTIVITIES OF NUMBER OF DAYS FROM START DATE ON SCREEN
 	//	MUST FILL DATES TOO SO THAT BOTH ARE USED BY PRESENTATION
 	function init(){
@@ -62,7 +66,7 @@ app.controller("viewGridController", function($scope, viewGridFactory, activityF
 		var month = d.getMonth() + 1;
 		var day = d.getDate();
 
-		viewGridFactory.getActivities(year,month,day,$scope.daysnumber).success(function(data){
+		activityFactory.getActivities(year,month,day,$scope.daysnumber).success(function(data){
 			$scope.data = data;
 			$scope.activities = getPreparedActivities($scope.data, $scope.hours,$scope.dates,$filter('datehour'));
 		});
@@ -129,45 +133,56 @@ app.controller("viewGridController", function($scope, viewGridFactory, activityF
 		return false;
 	}
 
+	$scope.nextPage = function(){
+		d = new Date($scope.dateStart);
+		d.setDate(d.getDate()+$scope.daysnumber);
+		$scope.dateStart = d;
+		init();
+	};
+
+	$scope.previousPage = function(){
+		d = new Date($scope.dateStart);
+		d.setDate(d.getDate()-$scope.daysnumber);
+		$scope.dateStart = d;
+		init();
+	};
+
 	$scope.addActivity = function(date,hour){;
 		activityFactory.setAddActivityDateHour(date,hour);
 	};
 
 });
 
-app.controller("editActivitiesController",function($scope, $rootScope, activityFactory){
+app.controller("editActivitiesController",function($scope, activityFactory){
 	$scope.test = activityFactory.getAddActivityDateHour();
+	$scope.add = function() {
+		activityFactory.addActivity().success(function(data){
+			$scope.output = data;
+		});
+	};
 });
 
 
-app.factory('viewGridFactory', function($http){
+app.factory('activityFactory', function($http, $filter){
 	var factory = {};
 
-	var webServerDomainName = "127.0.0.1:12345";
+	var webServerAddress = "http://127.0.0.1:12345/";
+
+	var d = "";
+	var h = 0;
 	
 	// GET NUMBER OF DAYS OF ACTIVITIES
 	factory.getActivities = function(year,month,day,daysnumber) {
 		return $http.get(
-				'http://'+webServerDomainName+'/activity/activities/'+
+				webServerAddress+'activity/activities/'+
 				year+'/'+month+'/'+day+'/'+daysnumber+'/rows.json'
 			);
 	};
 
 	//	GET DATE RANGE
 	factory.getDateRange = function(){
-		return $http.get('http://'+webServerDomainName+'/activity/activities/daterange.json');
+		return $http.get(webServerAddress+'activity/activities/daterange.json');
 	};
-
-	return factory;
-
-});
-
-app.factory('activityFactory',function($filter){
-	
-	var factory = {};
-
-	var d = "";
-	var h = 0;
 		
 	factory.setAddActivityDateHour = function(date,hour){
 		d=$filter('date')(date,"yyyy-MM-dd");
@@ -176,12 +191,17 @@ app.factory('activityFactory',function($filter){
 
 	factory.getAddActivityDateHour = function(){
 		return {"date":d,"hour":h};
-	}
+	};
+
+	factory.addActivity = function() {
+		return $http.post(webServerAddress+'activity/add/',
+			{
+				"date":"2014-08-25",
+				"hour":12,
+				"activities":["FD","WK","WKO"]
+			});
+	};
 
 	return factory;
 
-});
-
-app.run(function($rootScope){
-	//console.log(2);
 });

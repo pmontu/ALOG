@@ -38,6 +38,4 @@ class Activity(models.Model):
 	datehour = models.ForeignKey(Datehour)
 	details = models.CharField(max_length=200,blank=True)
 	def __unicode__(self):
-		for act in self.ACTIVITY_CHOICES:
-			if act[0]==self.activity:
-				return act[1]
+		return self.get_activity_display()
