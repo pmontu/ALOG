@@ -72,7 +72,10 @@ def getDateRange(request):
 
 def add(request):
 
-	j = json.loads(request.body)
+	try:
+		j = json.loads(request.body)
+	except ValueError:
+		raise ValueError("Invalid Json string in request body")
 
 	if "date" in j:
 		x = j["date"]
@@ -89,12 +92,11 @@ def add(request):
 	if "hour" in j:
 		x = j["hour"]
 		try:
-			hour = int(x)
+			hr = int(x)
 		except Exception:
 			raise ValueError("Invalid hour format")
-		if not hour >= 1 or not hour <=24:
+		if not hr >= 1 or not hr <=24:
 			raise ValueError("Invalid hour value (1-24)")
-
 	else:
 		raise KeyError("Missing 'hour'")
 
@@ -109,15 +111,23 @@ def add(request):
 						activities.append(item)
 						break
 			if len(activities)==0:
-				raise ValueError("No items found in activities")
+				raise ValueError("No valid activity codes found in 'activities'")
 		else:
 			raise StopIteration("Invalid list of activities")
 	else:
 		raise KeyError("Missing 'activities'")
 
 
-	return HttpResponse(json.dumps({
-		"date":str(dt),
-		"hour":hour,
-		"activities":str(activities)
-		}),"application/json")
+	if Datehour.objects.filter(date=dt,hour=hr).count()<>0:
+		raise Exception("Date hour entry already present")
+
+	rowsAffected = 0
+	d = Datehour(date=dt,hour=hr)
+	d.save()
+	rowsAffected += 1
+	for act in activities:
+		a = Activity(activity=act,datehour=d)
+		a.save()
+		rowsAffected += 1
+
+	return HttpResponse(json.dumps({"rowsaffected":rowsAffected}),"application/json")

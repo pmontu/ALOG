@@ -1,6 +1,6 @@
 
 
-var app = angular.module("alogApp",['ngRoute']);
+var app = angular.module("alogApp",['ngRoute','ui.bootstrap']);
 
 app.config(function($routeProvider){
 	$routeProvider.when('/',{
@@ -153,13 +153,49 @@ app.controller("viewGridController", function($scope, activityFactory, $filter) 
 
 });
 
-app.controller("editActivitiesController",function($scope, activityFactory){
-	$scope.test = activityFactory.getAddActivityDateHour();
+app.controller("editActivitiesController",function($scope, activityFactory,$filter){
+
+	$scope.page = activityFactory.getAddActivityDateHour();
+	$scope.alerts = [];
+
 	$scope.add = function() {
-		activityFactory.addActivity().success(function(data){
-			$scope.output = data;
+
+		var activities = [];
+		angular.forEach(Object.keys($scope.selection), function(key){
+
+			if($scope.selection[key])
+				activities.push(key);
+		});
+
+		requestdata = {
+			"date":$filter("date")($scope.page.date,"yyyy-MM-dd"),
+			"hour":$scope.page.hour,
+			"activities":activities
+		}
+
+		activityFactory.addActivity(requestdata).success(function(data){
+			$scope.alerts.push({type:"success",msg: 'Success. Rows affected in database: '+data.rowsaffected});
+		}).error(function(data, status, headers, config){
+			$scope.alerts.push({type:"danger",msg: 'Error code:'+status});
 		});
 	};
+
+
+	$scope.closeAlert = function(index) {
+		$scope.alerts.splice(index, 1);
+	};
+
+	$scope.codes = [
+		{display:"Food",id:"FD"},
+		{display:"Work",id:"WK"},
+		{display:"Work Out",id:"WO"},
+		{display:"Social",id:"SO"},
+		{display:"Leisure",id:"LE"},
+		{display:"Hygiene",id:"HY"},
+		{display:"Doctor",id:"DC"},
+		{display:"Travel",id:"TR"},
+	];
+	$scope.selection = {}
 });
 
 
@@ -193,13 +229,8 @@ app.factory('activityFactory', function($http, $filter){
 		return {"date":d,"hour":h};
 	};
 
-	factory.addActivity = function() {
-		return $http.post(webServerAddress+'activity/add/',
-			{
-				"date":"2014-08-25",
-				"hour":12,
-				"activities":["FD","WK","WKO"]
-			});
+	factory.addActivity = function(requestdata) {
+		return $http.post(webServerAddress+'activity/add/',requestdata);
 	};
 
 	return factory;
