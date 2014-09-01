@@ -48,9 +48,7 @@
                         </th>
                         <td ng-repeat="d in dates">
                             <div ng-repeat="a in activities[$parent.$index][$index].cells">{{ a.activity }}</div>
-                            <a ng-if="activities[$parent.$index][$index].isEmpty" class="btn btn-sm" ng-click="addActivity(d,h)" href="#/activity">
-                                <span class="glyphicon glyphicon-plus-sign"></span>
-                            </a>
+                            <insert ng-if="activities[$parent.$index][$index].isEmpty" date="d" hour="h"></insert>
                         </td>
                     </tr>
                 </table>

@@ -1,0 +1,22 @@
+<span ng-show="stage==1">
+	<a ng-click="stage=2" class="btn btn-sm">
+		<span class="glyphicon glyphicon-plus-sign"></span>
+	</a>
+</span>
+
+<span ng-show="stage==2">
+
+	<select ng-change="save()" ng-model="myCode" ng-options="code.display for code in codes"></select>
+	<a ng-click="save()" class="btn btn-sm">
+		<span class="glyphicon glyphicon-floppy-save"></span>
+	</a>
+
+</span>
+
+<span ng-show="stage==3">
+	done {{msg}}
+</span>
+
+<span ng-show="stage==4">
+	error
+</span>
