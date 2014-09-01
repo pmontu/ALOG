@@ -31,15 +31,16 @@
             <div class="panel-body">
 
                 <ul class="pager">
-                    <div ng-if="isPreviousAllowed"><li class="previous"><a ng-click="previousPage()" >&larr; Older</a></li></div>
-                    <div ng-if="isNextAllowed"><li class="next"><a ng-click="nextPage()" >Newer &rarr;</a></li></div>
+                    <li class="previous"><a ng-click="previousPage()" >&larr; Older</a></li>
+                    <li class="next"><a ng-click="nextPage()" >Newer &rarr;</a></li>
                 </ul>
 
-                <table class="table table-striped table-condensed">
+
+                <table class="table table-condensed">
                     <tr>
                         <td>h/d</td>
                         <th ng-repeat="d in dates">
-                            {{ d | date:'EEE MMM dd, yyyy' }}
+                            {{ d | date:' dd-MM-yy' }}
                         </th>
                     </tr>
                     <tr ng-repeat="h in hours">
@@ -47,11 +48,12 @@
                             {{ h }}
                         </th>
                         <td ng-repeat="d in dates">
-                            <div ng-repeat="a in activities[$parent.$index][$index].cells">{{ a.activity }}</div>
-                            <insert ng-if="activities[$parent.$index][$index].isEmpty" date="d" hour="h"></insert>
+                            <div ng-repeat="a in activities[$parent.$index][$index].cells"><graph activity="a.activity" code="a.code"></graph></div>
                         </td>
                     </tr>
                 </table>
+
+
             </div>
         </div>
     </div>

@@ -47,6 +47,7 @@ def getActivities(request, year, month, day, day_numbers):
 			'date':str(a.datehour.date),
 			'hour':a.datehour.hour,
 			'activity':a.get_activity_display(),
+			'code':a.activity,
 			'details':a.details,
 			})
 	

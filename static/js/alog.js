@@ -74,10 +74,6 @@ app.controller("viewGridController", function($scope, activityFactory, $filter) 
 		//	DATES TO FILTER
 		$scope.dates = getDates($scope.dateStart,$scope.daysnumber);
 		
-		//	PAGER	
-		$scope.isPreviousAllowed = getIsPreviousAllowed($scope.datemin,$scope.dateStart);
-		$scope.isNextAllowed = getIsNextAllowed($scope.datemax,$scope.dateStart,$scope.daysnumber);
-
 	}
 
 	function getDates(startdate,daysnumber){
@@ -116,23 +112,6 @@ app.controller("viewGridController", function($scope, activityFactory, $filter) 
 		return activities;
 	}
 
-	function getIsPreviousAllowed(mindate,startdate){
-		var dmin = new Date(mindate);
-		var sd = new Date(startdate);
-		if(dmin<sd)
-			return true;
-		return false;
-	}
-
-	function getIsNextAllowed(maxdate,startdate,daysnumber){
-		var dmax = new Date(maxdate);
-		var newdate = new Date(startdate);
-		newdate.setDate(newdate.getDate()+daysnumber-1);
-		if(dmax>newdate)
-			return true;
-		return false;
-	}
-
 	$scope.nextPage = function(){
 		d = new Date($scope.dateStart);
 		d.setDate(d.getDate()+$scope.daysnumber);
@@ -147,55 +126,31 @@ app.controller("viewGridController", function($scope, activityFactory, $filter) 
 		init();
 	};
 
-	$scope.addActivity = function(date,hour){;
-		activityFactory.setAddActivityDateHour(date,hour);
-	};
-
 });
 
-app.controller("editActivitiesController",function($scope, activityFactory,$filter){
 
-	$scope.page = activityFactory.getAddActivityDateHour();
-	$scope.alerts = [];
-
-	$scope.add = function() {
-
-		var activities = [];
-		angular.forEach(Object.keys($scope.selection), function(key){
-
-			if($scope.selection[key])
-				activities.push(key);
-		});
-
-		requestdata = {
-			"date":$filter("date")($scope.page.date,"yyyy-MM-dd"),
-			"hour":$scope.page.hour,
-			"activities":activities
-		}
-
-		activityFactory.addActivity(requestdata).success(function(data){
-			$scope.alerts.push({type:"success",msg: 'Success. Rows affected in database: '+data.rowsaffected});
-		}).error(function(data, status, headers, config){
-			$scope.alerts.push({type:"danger",msg: 'Error code:'+status});
-		});
-	};
-
-
-	$scope.closeAlert = function(index) {
-		$scope.alerts.splice(index, 1);
-	};
-
-	$scope.codes = [
-		{display:"Food",id:"FD"},
-		{display:"Work",id:"WK"},
-		{display:"Work Out",id:"WO"},
-		{display:"Social",id:"SO"},
-		{display:"Leisure",id:"LE"},
-		{display:"Hygiene",id:"HY"},
-		{display:"Doctor",id:"DC"},
-		{display:"Travel",id:"TR"},
-	];
-	$scope.selection = {}
+app.directive("graph",function(){
+	return {
+		controller:function($scope){
+			$scope.val=50;
+			$scope.colors = {
+				Food:"Gold",
+				Work:"red",
+				Social:"green",
+				Workout:"ForestGreen",
+				Leisure:"Aqua",
+				Hygiene:"DarkGreen",
+				Doctor:"DarkRed",
+				Travel:"DarkGray"
+			};
+		},
+		templateUrl:"views/graph.html",
+		scope:{
+			activity:"=",
+			code:"="
+		},
+		restrict:"E"
+	}
 });
 
 app.directive('insert',function(){
@@ -244,9 +199,6 @@ app.factory('activityFactory', function($http, $filter){
 	var factory = {};
 
 	var webServerAddress = "http://127.0.0.1:12345/";
-
-	var d = "";
-	var h = 0;
 	
 	// GET NUMBER OF DAYS OF ACTIVITIES
 	factory.getActivities = function(year,month,day,daysnumber) {
@@ -261,14 +213,6 @@ app.factory('activityFactory', function($http, $filter){
 		return $http.get(webServerAddress+'activity/activities/daterange.json');
 	};
 		
-	factory.setAddActivityDateHour = function(date,hour){
-		d=$filter('date')(date,"yyyy-MM-dd");
-		h=hour;
-	};
-
-	factory.getAddActivityDateHour = function(){
-		return {"date":d,"hour":h};
-	};
 
 	factory.addActivity = function(requestdata) {
 		return $http.post(webServerAddress+'activity/add/',requestdata);
