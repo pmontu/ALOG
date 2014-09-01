@@ -78,6 +78,7 @@ def add(request):
 	except ValueError:
 		raise ValueError("Invalid Json string in request body")
 
+
 	if "date" in j:
 		x = j["date"]
 		try:

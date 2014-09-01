@@ -132,15 +132,15 @@ app.controller("viewGridController", function($scope, activityFactory, $filter) 
 app.directive("graph",function(){
 	return {
 		controller:function($scope){
-			$scope.val=50;
+			$scope.val=30;
 			$scope.colors = {
 				Food:"Gold",
 				Work:"red",
-				Social:"green",
-				Workout:"ForestGreen",
+				Social:"purple",
+				Workout:"green",
 				Leisure:"Aqua",
-				Hygiene:"DarkGreen",
-				Doctor:"DarkRed",
+				Hygiene:"pink",
+				Doctor:"Gray",
 				Travel:"DarkGray"
 			};
 		},
@@ -155,7 +155,7 @@ app.directive("graph",function(){
 
 app.directive('insert',function(){
 	return {
-		controller:function($scope,$http,$filter){
+		controller:function($scope,$http,$filter,activityFactory){
 			$scope.codes = [
 				{display:"Food",id:"FD"},
 				{display:"Work",id:"WK"},
@@ -178,9 +178,9 @@ app.directive('insert',function(){
 					"activities":[$scope.myCode.id]
 				}
 
-				$http.post('http://127.0.0.1:12345/activity/add/',requestdata).success(function(data){
+				activityFactory.addActivity(requestdata).success(function(data){
 					$scope.stage=3;
-					$scope.msg = data.rawsAffected;
+					$scope.msg = data.rowsaffected;
 				}).error(function(){
 					$scope.stage=4;
 				});

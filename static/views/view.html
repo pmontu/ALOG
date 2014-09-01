@@ -48,7 +48,10 @@
                             {{ h }}
                         </th>
                         <td ng-repeat="d in dates">
-                            <div ng-repeat="a in activities[$parent.$index][$index].cells"><graph activity="a.activity" code="a.code"></graph></div>
+                            <span ng-repeat="a in activities[$parent.$index][$index].cells">
+                                <graph activity="a.activity" code="a.code"></graph>
+                            </span>
+                            <insert ng-if="activities[$parent.$index][$index].isEmpty" date="d" hour="h"></insert>
                         </td>
                     </tr>
                 </table>
